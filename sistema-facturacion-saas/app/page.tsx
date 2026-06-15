@@ -44,7 +44,7 @@ export default function Dashboard() {
 
   const cargarDashboard = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return; // Si no hay sesion, no cargamos nada
+    if (!session) return; 
 
     const { data, error } = await supabase
       .from('facturas')
@@ -56,12 +56,11 @@ export default function Dashboard() {
         descripcion,
         clientes ( nombre_contacto )
       `)
-      .eq('id_usuario', session.user.id) // <- EL FILTRO DE SEGURIDAD
+      .eq('id_usuario', session.user.id) 
       .order('fecha_vencimiento', { ascending: false });
 
     if (error) {
-      console.error("El error real es:", error.message, error.details, error.hint); // <-- Modificado
-      alert("Error de Supabase: " + error.message); // <-- Añadimos una alerta visual
+      console.error("Error cargando dashboard:", error);
       return;
     }
 
@@ -118,6 +117,13 @@ export default function Dashboard() {
       setFacturaEditando(null); 
       cargarDashboard(); 
     }
+  };
+
+  // Función para copiar el enlace al portapapeles
+  const copiarEnlacePago = (id_factura: string) => {
+    const url = `${window.location.origin}/factura/${id_factura}`;
+    navigator.clipboard.writeText(url);
+    alert("Enlace copiado al portapapeles. Listo para enviar a tu cliente.");
   };
 
   const facturasFiltradas = useMemo(() => {
@@ -287,7 +293,7 @@ export default function Dashboard() {
             {facturasFiltradas.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-gray-500 dark:text-gray-400">No se encontraron facturas con esos criterios.</p>
-                {facturas.length === 0 && <p className="text-sm mt-2 text-gray-400">¡Crea tu primera factura!</p>}
+                {facturas.length === 0 && <p className="text-sm mt-2 text-gray-400">Crea tu primera factura para empezar.</p>}
               </div>
             ) : (
               <div className="space-y-4">
@@ -327,13 +333,21 @@ export default function Dashboard() {
                         </span>
                       </div>
 
+                      {/* NUEVO: Botón para copiar el enlace directamente */}
+                      <button
+                        onClick={() => copiarEnlacePago(factura.id_factura)}
+                        className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm"
+                      >
+                        Copiar Enlace
+                      </button>
+
                       <a
                         href={`/factura/${factura.id_factura}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="bg-purple-100 hover:bg-purple-200 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50 px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm"
                       >
-                        Ver Detalle
+                        Portal de Pago
                       </a>
 
                       <button

@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new (Stripe as any)(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24',
-});
+// Inicialización limpia sin la versión explícita
+const stripe = new (Stripe as any)(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   try {
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
       mode: 'payment',
       success_url: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/factura/${facturaId}?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/factura/${facturaId}?canceled=true`,
-      // NUEVO: ESTA ES LA ETIQUETA SECRETA
+      // Esta es la etiqueta secreta para el Webhook
       metadata: {
         facturaId: facturaId, 
       },

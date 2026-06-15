@@ -2,11 +2,10 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabase } from '@/lib/supabase';
 
-const stripe = new (Stripe as any)(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24',
-});
+// Inicialización limpia sin la versión explícita
+const stripe = new (Stripe as any)(process.env.STRIPE_SECRET_KEY!);
 
-// Esta es la nueva contraseña que Stripe nos dará cuando subamos la página a internet
+// Esta es la contraseña secreta que Stripe nos dará cuando subamos la página a internet
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export async function POST(req: Request) {
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any;
     
-    // Extraemos la etiqueta que le pusimos en el Paso 1
+    // Extraemos la etiqueta que le pusimos al crear el pago
     const facturaId = session.metadata?.facturaId;
 
     if (facturaId) {
